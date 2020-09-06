@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchDataRequest } from "./redux/actions";
@@ -6,22 +6,23 @@ import { Container } from "react-bootstrap";
 import Job from "./components/Job";
 import SearchForm from "./components/SearchForm";
 import JobsPagination from "./components/JobsPagination";
+import axios from 'axios'
 
 function App() {
-  const jobs = useSelector((state) => state.data.lists);
-  const hasNextPage = useSelector((state) => state.data.hasNextPage);
+  const {loading ,err , jobs, hasNextPage} = useSelector((state) => state.data);
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [params, setParams] = useState({});
-  const timeRef = useRef();
 
   useEffect(() => {
-    timeRef.current = setTimeout(() => {
-      dispatch(fetchDataRequest(params, page));
-    }, 1500);
-    dispatch(fetchDataRequest(params, page));
+      const cancelToken1 = axios.CancelToken.source();
+      const cancelToken2 = axios.CancelToken.source();
+
+      dispatch(fetchDataRequest(params, page, cancelToken1 , cancelToken2));
+    
     return () => {
-      clearTimeout(timeRef.current);
+      cancelToken1.cancel()
+      cancelToken2.cancel()
     };
   }, [params, page]);
 
@@ -39,7 +40,7 @@ function App() {
       <h1 className="mb-4">GitHub Jobs</h1>
       <SearchForm params={params} onParamChange={handleParamChange} />
       <JobsPagination page={page} setPage={setPage} hasNextPage={hasNextPage} />
-      {jobs.length === 0 && 'Loading....'}
+      {loading === true && err === '' && 'Loading....'}
       {jobs.map((job) => {
         return <Job key={job.id} job={job} />;
       })}

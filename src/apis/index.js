@@ -2,17 +2,14 @@ import axios from 'axios';
 
 const URL = 'https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json';
 
-export const getData = (params, page) => {
-
-     const cancelToken1 = axios.CancelToken.source()
-
+export const getData = (params, page , cancelToken) => {
      return new Promise ((resolve , reject) => {
           axios.get(URL, {
-               cancelToken: cancelToken1.token,
+               cancelToken: cancelToken.token,
                params: { markdown: true, page, ...params}
           })
           .then((res) => {
-               resolve(res.data)
+               resolve(res.data);
           })
           .catch(err => {
                reject(err)
