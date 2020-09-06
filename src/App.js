@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./App.css";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchDataRequest } from "./redux/actions";
@@ -26,19 +26,33 @@ function App() {
     };
   }, [params, page]);
 
-  function handleParamChange(e) {
+  const handleParamChange = (e) => {
     const param = e.target.name;
-    const value = e.target.value;
+    var value = e.target.value;
     setPage(1);
     setParams((prevParams) => {
-      return { ...prevParams, [param]: value };
+      return { ...prevParams, [param]: value};
     });
   }
+
+  const handleCheckBoxChange = (e) => {
+    e.persist()
+    const param = e.target.name;
+    // console.log(e.currentTarget.checked)
+    console.log(e.target.checked)
+    setPage(1);
+    setParams((prevParams) => {
+      return { ...prevParams, [param]: e.target.checked };
+    });
+  }
+
+  
+
 
   return (
     <Container className="my-4">
       <h1 className="mb-4">GitHub Jobs</h1>
-      <SearchForm params={params} onParamChange={handleParamChange} />
+      <SearchForm params={params} onParamChange={handleParamChange} handleCheckBoxChange = {handleCheckBoxChange} />
       <JobsPagination page={page} setPage={setPage} hasNextPage={hasNextPage} />
       {loading === true && err === '' && 'Loading....'}
       {jobs.map((job) => {
